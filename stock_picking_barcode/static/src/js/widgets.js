@@ -106,11 +106,11 @@ odoo.define('stock_picking_barcode.widgets', function (require) {
                                     product_id: void 0,
                                     can_scan: false,
                                     head_container: true,
-                                    processed_boolean: packopline.processed_boolean,
+                                    processed: packopline.processed,
                                     package_id: myPackage.id,
                                     ul_id: myPackage.ul_id[0]
                             },
-                            classes: ('success container_head ') + (packopline.processed_boolean === "true"
+                            classes: ('success container_head ') + (packopline.processed
                                 ? 'processed hidden '
                                 :'')
                         });
@@ -138,14 +138,14 @@ odoo.define('stock_picking_barcode.widgets', function (require) {
                                     product_id: packopline.product_id[0],
                                     can_scan: (typeof packopline.result_package_id[1] === 'undefined'),
                                     head_container: false,
-                                    processed_boolean: packopline.processed_boolean,
+                                    processed: packopline.processed,
                                     package_id: void 0,
                                     ul_id: -1
                             },
 
                             classes: color + (typeof packopline.result_package_id[1] === 'undefined'
                                 ? ''
-                                : 'in_container_hidden ') + (packopline.processed_boolean === "true"
+                                : 'in_container_hidden ') + (packopline.processed
                                     ? 'processed hidden '
                                     :'')
                         });
@@ -455,7 +455,7 @@ odoo.define('stock_picking_barcode.widgets', function (require) {
             var self = this;
             var done = true;
             _.each( model.packoplines, function(packopline){
-                if (packopline.processed_boolean === "false"){
+                if (!packopline.processed){
                     done = false;
                     return done;
                 }
@@ -1066,14 +1066,14 @@ odoo.define('stock_picking_barcode.widgets', function (require) {
                     model: 'stock.backorder.confirmation',
                     method: 'create',
                     args: [
-                        {'pick_id': self.picking.id}
+                        {'pick_ids': pack_op_ids}
                     ]
                 }).then(function(id){
                     return rpc.query({
                         model: 'stock.backorder.confirmation',
-                        method: 'process',
+                        method: 'put_in_cart',
                         args: [
-                            id
+                            id, self.picking.id
                         ]
                     }).then(function(){
                         return self.refresh_ui(self.picking.id).then(function(){

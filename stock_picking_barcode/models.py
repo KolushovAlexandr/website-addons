@@ -4,7 +4,7 @@
 # Copyright 2018 Kolushov Alexandr <https://it-projects.info/team/KolushovAlexandr>
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from odoo import models, api
+from odoo import models, api, fields
 
 
 class StockPicking(models.Model):
@@ -183,9 +183,17 @@ class StockPickingType(models.Model):
         return {'type': 'ir.actions.act_url', 'url': final_url, 'target': 'self'}
 
 
+class StockMoveOperation(models.Model):
+    _inherit = "stock.move"
+
+    processed = fields.Boolean(defauly=False)
+
+
 class StockPackOperation(models.Model):
     _inherit = "stock.move.line"
     # _inherit = "stock.pack.operation"
+
+    processed = fields.Boolean(defauly=False)
 
     @api.multi
     def _increment(self, picking_id, domain, filter_visible=False, visible_op_ids=False, increment=True):
