@@ -33,18 +33,20 @@ stock_widgets.PickingMainWidget.include({
                 ],
             }).then(function(vendor_barcodes){
                 var lines = false;
+                 _.each(self.packoplines, function(line){
+                    if (line.product_barcode) {
+                        if (typeof line.product_barcode === 'string'){
+                            line.product_barcode = [line.product_barcode];
+                        }
+                    } else {
+                        line.product_barcode = []
+                    };
+                });
                 _.each(vendor_barcodes, function(bar) {
                     lines = _.filter(self.packoplines, function(line){
                         return line.product_id[0] === bar.product_id[0];
                     });
                     _.each(lines, function(line){
-                        if (line.product_barcode) {
-                            if (typeof line.product_barcode === 'string'){
-                                line.product_barcode = [line.product_barcode];
-                            }
-                        } else {
-                            line.product_barcode = []
-                        }
                         line.product_barcode.push(bar.barcode);
                     });
 
