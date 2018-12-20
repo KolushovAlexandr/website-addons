@@ -9,9 +9,21 @@ class VendorBarcode(models.Model):
     _name = 'res.partner.product.barcode'
     _description = 'Vendor Product Multiple Barcodes'
 
-    barcode = fields.Char('Barcode')
-    partner_id = fields.Many2one('res.partner', 'Vendor')
-    product_id = fields.Many2one('product.product', 'Product')
+    barcode = fields.Char('Barcode', required=True)
+    partner_id = fields.Many2one('res.partner', 'Vendor', required=True)
+    product_id = fields.Many2one('product.product', 'Product', required=True)
+    supplier_info_id = fields.Many2one('product.supplierinfo', 'Supplier Info')
+
+    @api.model
+    def create(self, vals):
+        record = super(VendorBarcode, self).create(vals)
+        if not vals.get('supplier_info_id', False):
+            product_template_id = self.env['product.product'].browse(vals.get('product_id')).product_tmpl_id
+            supplier_info_id = self.env['product.supplierinfo'].search([('name', '=', vals.get('partner_id')), '|', ('product_tmpl_id', '=', product_template_id.id), ('product_id', '=', vals.get('product_id'))])
+            record.write({
+                'supplier_info_id': supplier_info_id.id,
+            })
+        return record
 
 
 class Partner(models.Model):
@@ -21,11 +33,18 @@ class Partner(models.Model):
     barcode_ids = fields.One2many('res.partner.product.barcode', 'partner_id', string='Product Barcodes')
 
 
-class ProductTemplate(models.Model):
+class ProductProduct(models.Model):
 
-    _inherit = 'product.template'
+    _inherit = 'product.product'
 
     barcode_ids = fields.One2many('res.partner.product.barcode', 'product_id', string='Vendor Barcodes')
+
+
+class SupplierInfo(models.Model):
+
+    _inherit = "product.supplierinfo"
+
+    barcode_ids = fields.One2many('res.partner.product.barcode', 'supplier_info_id', string='Supplier Barcodes')
 
 
 class StockPicking(models.Model):
@@ -39,8 +58,6 @@ class StockPicking(models.Model):
             [('picking_id', '=', self.id)])
         matching_vendor_product_ids = self.env['res.partner.product.barcode'].search(
             [('barcode', '=', barcode_str)])
-        # import wdb
-        # wdb.set_trace()
         answer = {'filter_loc': False, 'operation_id': False}
         if matching_vendor_product_ids:
             op_id = pack_op._increment(

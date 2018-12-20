@@ -35,11 +35,7 @@
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
           <p class="oe_view_nocontent_create">
-            Click to add a contact in your address book.
-          </p><p>
-            Odoo helps you easily track all activities related to
-            a supplier: discussions, history of purchases,
-            documents, etc.
+            Click to add a vendor barcode.
           </p>
         </field>
     </record>
