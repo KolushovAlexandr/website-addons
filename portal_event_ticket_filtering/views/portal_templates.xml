@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <template id="registration_template_filtered" inherit_id="website_event_sale.registration_template">
+
+        <xpath expr="//t[@t-foreach='event.event_ticket_ids']" position="before">
+            <t t-set="tickets" t-value="tickets or event.event_ticket_ids"/>
+        </xpath>
+
+        <xpath expr="//t[@t-foreach='event.event_ticket_ids']" position="attributes">
+            <attribute name="t-foreach">tickets</attribute>
+        </xpath>
+
+    </template>
+
+</odoo>
